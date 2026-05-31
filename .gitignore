@@ -1,3 +1,4 @@
+__pycache__/
 src/book_ocr/__pycache__/
 tests/__pycache__/
 output

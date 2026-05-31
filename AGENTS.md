@@ -64,4 +64,16 @@ Stage runs after v5 OCR + mechanical fixes when `--llm-url` is provided:
 
 LLM uses `llama.cpp` server at `--llm-url`, endpoint `/v1/chat/completions`. Default model `qwen3.6-27b`.
 Pages are processed in parallel with `--llm-workers` (default 4).
-Translation batches 20 segments per LLM call to reduce overhead.
+Translation batches 10 segments per LLM call to reduce overhead (BATCH_SIZE in `llm_client.py`).
+Server started with `-np 1` — requests are serial; use `-np N` for parallel.
+
+## Azure GPT-5.3 translation (alternate)
+Standalone script `translate_letters.py` translates letter-by-letter using Azure OpenAI (GPT-5.3-chat).
+Reads `output/milena.json` segments, groups by letter, generates a Czech summary for context, then translates each letter in one call.
+
+Usage:
+```
+uv run python3 translate_letters.py output/milena.json output/milena_new.json [--letters-dir output/letters] [--summary-file output/summary.txt]
+```
+Output: `letter_01.json`–`letter_19.json` (per-letter), `milena_new.json` (joined).
+Requires `AZURE_OPENAI_API_KEY`/`ENDPOINT`/`VERSION`/`DEPLOYMENT` or `OPENAI_BASE_URL`/`API_KEY`/`MODEL` env vars.
