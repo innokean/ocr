@@ -14,6 +14,9 @@ class PaddleOcrEngine:
         use_gpu: bool = True,
         use_angle_cls: bool = True,
         show_log: bool = False,
+        text_det_thresh: float | None = None,
+        text_det_box_thresh: float | None = None,
+        text_rec_score_thresh: float | None = None,
     ) -> None:
         try:
             from paddleocr import PaddleOCR
@@ -50,9 +53,17 @@ class PaddleOcrEngine:
             self._ocr = PaddleOCR(**kwargs)
         self._use_predict = hasattr(self._ocr, "predict")
 
+        self._predict_kwargs = {}
+        if text_det_thresh is not None:
+            self._predict_kwargs["text_det_thresh"] = text_det_thresh
+        if text_det_box_thresh is not None:
+            self._predict_kwargs["text_det_box_thresh"] = text_det_box_thresh
+        if text_rec_score_thresh is not None:
+            self._predict_kwargs["text_rec_score_thresh"] = text_rec_score_thresh
+
     def recognize_page(self, page: PageImage) -> PageOcrResult:
         if self._use_predict:
-            raw_result = self._ocr.predict(str(page.path))
+            raw_result = self._ocr.predict(str(page.path), **self._predict_kwargs)
         else:
             raw_result = self._ocr.ocr(str(page.path), cls=True)
         lines = sort_lines_for_reading(parse_paddle_result(raw_result))

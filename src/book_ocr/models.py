@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from pathlib import Path
 from typing import Any
 
@@ -51,6 +51,9 @@ class PageOcrResult:
         if not self.lines:
             return None
         return sum(line.confidence for line in self.lines) / len(self.lines)
+
+    def filter_lines(self, min_conf: float = 0.5) -> PageOcrResult:
+        return replace(self, lines=[line for line in self.lines if line.confidence >= min_conf])
 
     def to_json(self) -> dict[str, Any]:
         return {
